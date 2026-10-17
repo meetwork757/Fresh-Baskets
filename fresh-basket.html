@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fresh Basket – Foodstuff Delivery</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{--bg:#f7f5ef;--card:#fff;--text:#1f2a1f;--mut:#6b756b;--pri:#2e7d32;--pri2:#e8f3e8;--bd:#e3e0d6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141a14;--card:#1e271e;--text:#eef3ee;--mut:#9aa89a;--pri:#66bb6a;--pri2:#223022;--bd:#2f3b2f}}
+:root[data-theme="dark"]{--bg:#141a14;--card:#1e271e;--text:#eef3ee;--mut:#9aa89a;--pri:#66bb6a;--pri2:#223022;--bd:#2f3b2f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:90px}
+.hero{background:linear-gradient(135deg,#2e7d32,#66a94b);color:#fff;padding:22px 16px 20px;display:flex;gap:14px;align-items:center}
+.hero svg{flex:none;width:64px;height:64px}
+.hero h1{margin:0;font-size:24px;letter-spacing:.3px}
+.hero p{margin:4px 0 0;font-size:13px;opacity:.95}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:12px 16px}
+.tab{border:1px solid var(--bd);background:var(--card);color:var(--text);padding:8px 14px;border-radius:20px;font-size:14px;white-space:nowrap;cursor:pointer}
+.tab.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:0 16px}
+.item{background:var(--card);border:1px solid var(--bd);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.ph{height:96px;display:flex;align-items:center;justify-content:center;font-size:52px}
+.bd{padding:10px 12px 12px;display:flex;flex-direction:column;gap:3px}
+.nm{font-weight:600;font-size:15px}
+.un{color:var(--mut);font-size:12px}
+.pr{color:var(--pri);font-weight:700}
+.ctl{margin-top:6px}
+button{font:inherit;cursor:pointer}
+.add{width:100%;background:var(--pri);color:#fff;border:0;border-radius:10px;padding:8px}
+.q{display:flex;align-items:center;justify-content:space-between}
+.q button{width:34px;height:34px;border-radius:50%;border:1px solid var(--pri);background:var(--pri2);color:var(--pri);font-size:18px}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--bd);display:none}
+.bar button{width:100%;background:var(--pri);color:#fff;border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:600}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;z-index:5}
+.panel{background:var(--bg);width:100%;max-height:90%;overflow:auto;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd);font-size:14px}
+.tot{font-weight:700;font-size:17px;border:0}
+input,textarea{width:100%;padding:11px;margin-top:8px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--text);font:inherit}
+.send{display:block;text-align:center;text-decoration:none;background:#25d366;color:#fff;border-radius:12px;padding:14px;font-weight:600;margin-top:12px}
+.x{float:right;background:none;border:0;color:var(--mut);font-size:22px}
+.note{color:var(--mut);font-size:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="hero">
+  <svg viewBox="0 0 64 64" aria-label="Fresh Basket logo"><circle cx="32" cy="32" r="31" fill="#fff"/><path d="M14 28h36l-4 22a4 4 0 0 1-4 3H22a4 4 0 0 1-4-3z" fill="#f2a93b"/><path d="M12 28h40" stroke="#c27d14" stroke-width="4" stroke-linecap="round"/><path d="M22 28c0-9 4-15 10-15s10 6 10 15" fill="none" stroke="#c27d14" stroke-width="3"/><path d="M32 22c-1-7 3-12 10-13 0 7-3 12-10 13z" fill="#2e7d32"/><path d="M32 22c0-5-3-8-8-9 0 5 3 8 8 9z" fill="#66a94b"/><path d="M24 36v10M32 36v10M40 36v10" stroke="#c27d14" stroke-width="2"/></svg>
+  <div><h1>Fresh Basket</h1><p>Skip the market. Order your foodstuff and we deliver to your door.</p></div>
+</div>
+<div class="tabs" id="tabs"></div>
+<div class="grid" id="grid"></div>
+<div class="bar" id="bar"><button id="view"></button></div>
+<div class="sheet" id="sheet"><div class="panel" id="panel"></div></div>
+
+<script>
+var SELLER = "2348122141515";
+var CUR = "₦";
+var FEE = 1500; // delivery fee, change this number
+var BG = {"Vegetables":"linear-gradient(135deg,#d8f0c8,#a8d98a)","Grains":"linear-gradient(135deg,#fbefc9,#f0d68a)","Tubers":"linear-gradient(135deg,#f6e0c8,#e5b98a)","Protein":"linear-gradient(135deg,#d6e9f8,#a9cdee)","Oils & Spices":"linear-gradient(135deg,#fbd9c8,#f0a98a)"};
+var ITEMS = [
+ {id:1,n:"Tomatoes",u:"basket",p:3500,c:"Vegetables",e:"🍅"},
+ {id:2,n:"Pepper (Tatashe)",u:"bunch",p:2500,c:"Vegetables",e:"🌶️"},
+ {id:3,n:"Onions",u:"bag",p:6000,c:"Vegetables",e:"🧅"},
+ {id:4,n:"Ugu Leaves",u:"bunch",p:700,c:"Vegetables",e:"🥬"},
+ {id:5,n:"Rice",u:"5kg",p:9500,c:"Grains",e:"🍚"},
+ {id:6,n:"Beans",u:"derica",p:1200,c:"Grains",e:"🫘"},
+ {id:7,n:"Garri",u:"derica",p:600,c:"Grains",e:"🥣"},
+ {id:8,n:"Yam",u:"tuber",p:3000,c:"Tubers",e:"🍠"},
+ {id:9,n:"Plantain",u:"bunch",p:2500,c:"Tubers",e:"🍌"},
+ {id:10,n:"Eggs",u:"crate",p:4200,c:"Protein",e:"🥚"},
+ {id:11,n:"Fresh Fish",u:"kg",p:4500,c:"Protein",e:"🐟"},
+ {id:12,n:"Chicken",u:"kg",p:5500,c:"Protein",e:"🍗"},
+ {id:13,n:"Palm Oil",u:"litre",p:2200,c:"Oils & Spices",e:"🛢️"},
+ {id:14,n:"Seasoning Cubes",u:"pack",p:900,c:"Oils & Spices",e:"🧂"}
+];
+var cats=["All"].concat(ITEMS.map(function(i){return i.c}).filter(function(v,i,a){return a.indexOf(v)===i}));
+var cat="All",cart={};
+function money(n){return CUR+n.toLocaleString()}
+function count(){return Object.keys(cart).reduce(function(s,k){return s+cart[k]},0)}
+function total(){return ITEMS.reduce(function(s,i){return s+(cart[i.id]||0)*i.p},0)}
+function setQ(id,d){cart[id]=Math.max(0,(cart[id]||0)+d);if(!cart[id])delete cart[id];draw();if(document.getElementById("sheet").style.display==="flex"){if(count())openCart();else closeCart()}}
+function setCat(i){cat=cats[i];draw()}
+function draw(){
+  document.getElementById("tabs").innerHTML=cats.map(function(c,i){return '<button class="tab'+(c===cat?' on':'')+'" onclick="setCat('+i+')">'+c.replace("&","&amp;")+'</button>'}).join("");
+  document.getElementById("grid").innerHTML=ITEMS.filter(function(i){return cat==="All"||i.c===cat}).map(function(i){
+    var q=cart[i.id]||0;
+    return '<div class="item"><div class="ph" style="background:'+BG[i.c]+'">'+i.e+'</div><div class="bd"><div class="nm">'+i.n+'</div><div class="un">per '+i.u+'</div><div class="pr">'+money(i.p)+'</div><div class="ctl">'+
+      (q?'<div class="q"><button onclick="setQ('+i.id+',-1)">−</button><b>'+q+'</b><button onclick="setQ('+i.id+',1)">+</button></div>':'<button class="add" onclick="setQ('+i.id+',1)">Add</button>')+'</div></div></div>'}).join("");
+  document.getElementById("bar").style.display=count()?"block":"none";
+  document.getElementById("view").textContent="View order ("+count()+") · "+money(total());
+}
+function openCart(){
+  var keep=["nm","ph","ad"].map(function(id){var e=document.getElementById(id);return e?e.value:""});
+  var rows=ITEMS.filter(function(i){return cart[i.id]}).map(function(i){return '<div class="row"><span>'+cart[i.id]+' × '+i.n+' <span class="un">('+i.u+')</span></span><span>'+money(cart[i.id]*i.p)+'</span></div>'}).join("");
+  document.getElementById("panel").innerHTML='<button class="x" onclick="closeCart()">×</button><h2 style="margin:0 0 8px">Your order</h2>'+rows+
+   '<div class="row"><span>Subtotal</span><span>'+money(total())+'</span></div><div class="row"><span>Delivery fee</span><span>'+money(FEE)+'</span></div><div class="row tot"><span>Total</span><span>'+money(total()+FEE)+'</span></div>'+
+   '<input id="nm" placeholder="Your name"><input id="ph" placeholder="Phone number" inputmode="tel"><textarea id="ad" rows="2" placeholder="Delivery address"></textarea>'+
+   '<a class="send" href="#" onclick="return send(this)">Send order on WhatsApp</a><div class="note">Pay on delivery or by transfer.</div>';
+  ["nm","ph","ad"].forEach(function(id,k){document.getElementById(id).value=keep[k]});
+  document.getElementById("sheet").style.display="flex";
+}
+function closeCart(){document.getElementById("sheet").style.display="none"}
+function send(a){
+  var n=document.getElementById("nm").value.trim(),p=document.getElementById("ph").value.trim(),d=document.getElementById("ad").value.trim();
+  if(!n||!p||!d){alert("Please fill in your name, phone and address.");return false}
+  var lines=ITEMS.filter(function(i){return cart[i.id]}).map(function(i){return "- "+cart[i.id]+" x "+i.n+" ("+i.u+") = "+money(cart[i.id]*i.p)});
+  var msg="New Fresh Basket order\n"+lines.join("\n")+"\nSubtotal: "+money(total())+"\nDelivery fee: "+money(FEE)+"\nTotal: "+money(total()+FEE)+"\n\nName: "+n+"\nPhone: "+p+"\nAddress: "+d;
+  a.href="https://wa.me/"+SELLER+"?text="+encodeURIComponent(msg);
+  return true;
+}
+document.getElementById("view").onclick=openCart;
+document.getElementById("sheet").onclick=function(e){if(e.target.id==="sheet")closeCart()};
+draw();
+</script>
+</body>
+</html>
